@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Image, Animated } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { ChatMessage } from '../../mobx/ChatStore';
 import styles from './styles';
@@ -10,15 +10,26 @@ interface ChatBubbleProps {
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = observer(({ message, isOwnMessage }) => {
+    const slideAnim = useRef(new Animated.Value(isOwnMessage ? 300 : -300)).current; // Initial position
+
+    useEffect(() => {
+        Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    }, [slideAnim]);
+
     const formattedTime = new Date(message.timestamp).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit'
     });
 
     return (
-        <View style={[
+        <Animated.View style={[
             styles.container,
-            isOwnMessage ? styles.ownMessageContainer : styles.otherMessageContainer
+            isOwnMessage ? styles.ownMessageContainer : styles.otherMessageContainer,
+            { transform: [{ translateX: slideAnim }] }
         ]}>
             {isOwnMessage ? (
                 <View style={styles.ownMessageWrapper}>
@@ -48,7 +59,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = observer(({ message, isOwnMessage 
                     </View>
                 </View>
             )}
-        </View>
+        </Animated.View>
     );
 });
 

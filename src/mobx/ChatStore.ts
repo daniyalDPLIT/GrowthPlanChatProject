@@ -58,7 +58,6 @@ export class ChatStore {
     get sortedMessages() {
         console.log(this.messages, "this.messages");
         return this.messages
-        // return [...this.messages].sort((a, b) => b.timestamp?.getTime() - a.timestamp?.getTime());
     }
 
     get lastMessage() {
@@ -66,5 +65,4 @@ export class ChatStore {
     }
 }
 
-// Create a single instance
 export const chatStore = new ChatStore(); 

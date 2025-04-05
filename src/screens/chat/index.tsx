@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     View,
     FlatList,
@@ -7,7 +7,8 @@ import {
     KeyboardAvoidingView,
     Platform,
     Text,
-    Image
+    Image,
+    Animated
 } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { ChatMessage, chatStore } from '../../mobx/ChatStore';
@@ -22,19 +23,15 @@ const ChatScreen = observer(() => {
     const [messageText, setMessageText] = React.useState('');
     const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
     const flatListRef = React.useRef<FlatList>(null);
+    const scaleAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
-        // Join the user's room
         socket.emit('join', chatStore.currentUser.id);
-
-        // Listen for incoming messages
         socket.on('chat message', (msg) => {
             console.log(msg, 'im listne');
 
             chatStore.addMessage(msg);
         });
-
-        // Clean up on unmount
         return () => {
             socket.off('chat message');
         };
@@ -47,21 +44,14 @@ const ChatScreen = observer(() => {
                 text: messageText.trim(),
                 timestamp: new Date(),
                 sender: chatStore.currentUser,
-                receiverId: 'user2', // Replace with actual receiver ID
+                receiverId: 'user2',
                 isRead: false,
                 status: 'sent',
                 imageUri: selectedImage,
             };
-
-            // Emit the message to the server
             socket.emit('chat message', message);
-
-            // Add the message to the local store
-            // chatStore.addMessage(message);
-
             setMessageText('');
-            setSelectedImage(null); // Clear the selected image after sending
-            // Scroll to bottom after sending
+            setSelectedImage(null);
             setTimeout(() => {
                 flatListRef.current?.scrollToIndex({ index: 0, animated: true });
             }, 100);
@@ -93,6 +83,20 @@ const ChatScreen = observer(() => {
 
     const handleRemoveImage = () => {
         setSelectedImage(null);
+    };
+
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.9,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+        }).start();
     };
 
     return (
@@ -139,16 +143,20 @@ const ChatScreen = observer(() => {
                         maxLength={1000}
 
                     />
-                    <TouchableOpacity
-                        style={[
-                            styles.sendButton,
-                            !messageText.trim() && styles.sendButtonDisabled
-                        ]}
-                        onPress={handleSendMessage}
-                        disabled={!messageText.trim()}
-                    >
-                        <Text style={styles.sendButtonText}>Send</Text>
-                    </TouchableOpacity>
+                    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                        <TouchableOpacity
+                            style={[
+                                styles.sendButton,
+                                !messageText.trim() && styles.sendButtonDisabled
+                            ]}
+                            onPress={handleSendMessage}
+                            onPressIn={handlePressIn}
+                            onPressOut={handlePressOut}
+                            disabled={!messageText.trim()}
+                        >
+                            <Text style={styles.sendButtonText}>Send</Text>
+                        </TouchableOpacity>
+                    </Animated.View>
                 </View>
             </View>
         </KeyboardAvoidingView>

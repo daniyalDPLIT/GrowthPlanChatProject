@@ -11,7 +11,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
 };
 
-// Custom hook to use the store
 export const useStore = () => {
     const store = React.useContext(StoreContext);
     if (!store) {

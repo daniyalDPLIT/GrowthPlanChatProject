@@ -7,7 +7,6 @@ import { width } from '../utils/dimensions';
 
 export type RootStackParamList = {
     Chat: undefined;
-    // Add other screens here as needed
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
