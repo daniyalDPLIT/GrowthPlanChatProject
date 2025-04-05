@@ -7,7 +7,7 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.background,
-        padding: width(4),
+        paddingVertical: width(4),
     },
     header: {
         height: height(8),
@@ -26,14 +26,17 @@ export default StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         paddingBottom: width(7),
-
         backgroundColor: colors.background,
         alignItems: 'center',
+        width: width(92),
+        alignSelf: "center",
+        borderTopColor: colors.secondaryBackground,
+        borderTopWidth: width(0.2)
     },
-    footerContainer: {
+    footer: {
         borderTopWidth: width(0.2),
         borderTopColor: colors.secondaryText,
-        paddingTop: height(2)
+        paddingTop: height(1)
     },
     input: {
         flex: 1,

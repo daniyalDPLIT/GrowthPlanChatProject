@@ -1,63 +1,76 @@
 import { StyleSheet } from 'react-native';
-import { width, height } from '../../utils/dimensions';
+import { width } from '../../utils/dimensions';
 import { colors } from '../../utils/app-colors';
 import { fontFamily } from '../../utils/font-family';
 
 export default StyleSheet.create({
     container: {
-        maxWidth: width(70),
-        minWidth: width(20),
-        padding: width(3),
-        borderRadius: width(3),
         marginVertical: width(1),
         marginHorizontal: width(3),
     },
-    ownMessage: {
+    ownMessageContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    },
+    otherMessageContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+    },
+    ownMessageWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    otherMessageWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    youCircle: {
+        width: width(8),
+        height: width(8),
+        borderRadius: width(4),
+        backgroundColor: colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: width(2),
+    },
+    youText: {
+        color: colors.background,
+        fontFamily: fontFamily.bold,
+        fontSize: width(3),
+    },
+    messageBubble: {
+        maxWidth: width(60),
+        padding: width(3),
+        borderRadius: width(3),
         backgroundColor: colors.myMessageBubble,
-        alignSelf: 'flex-end',
-        borderTopRightRadius: width(1),
-    },
-    otherMessage: {
-        backgroundColor: colors.messageBubble,
-        alignSelf: 'flex-start',
-        borderTopLeftRadius: width(1),
-    },
-    text: {
-        fontFamily: fontFamily.regular,
-        fontSize: width(3.8),
-        lineHeight: width(5),
     },
     ownMessageText: {
         color: colors.myMessageText,
+        fontFamily: fontFamily.regular,
+        fontSize: width(3.8),
     },
     otherMessageText: {
         color: colors.messageText,
+        fontFamily: fontFamily.regular,
+        fontSize: width(3.8),
     },
     timestamp: {
         fontSize: width(2.8),
-        marginTop: width(1),
         color: colors.secondaryText,
+        marginTop: width(1),
+    },
+    messageImage: {
+        width: width(50),
+        height: width(30),
+        borderRadius: width(2),
+        marginBottom: width(2),
     },
     avatar: {
         width: width(10),
         height: width(10),
         borderRadius: width(5),
         marginRight: width(2),
-    },
-    messageFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: width(1),
-    },
-    status: {
-        fontSize: width(2.8),
-        color: colors.secondaryText,
-    },
-    messageImage: {
-        width: width(60),
-        height: width(40),
-        borderRadius: width(2),
-        marginBottom: width(2),
     },
 }); 

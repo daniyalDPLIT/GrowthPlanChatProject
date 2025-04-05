@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     View,
     FlatList,
@@ -10,22 +10,58 @@ import {
     Image
 } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { chatStore } from '../../mobx/ChatStore';
+import { ChatMessage, chatStore } from '../../mobx/ChatStore';
 import styles from './styles';
 import ChatBubble from '../../components/ChatBubble';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { height } from '../../utils/dimensions';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3000'); // Connect to the local server
 
 const ChatScreen = observer(() => {
     const [messageText, setMessageText] = React.useState('');
     const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
     const flatListRef = React.useRef<FlatList>(null);
 
+    useEffect(() => {
+        // Join the user's room
+        socket.emit('join', chatStore.currentUser.id);
+
+        // Listen for incoming messages
+        socket.on('chat message', (msg) => {
+            console.log(msg, 'im listne');
+
+            chatStore.addMessage(msg);
+        });
+
+        // Clean up on unmount
+        return () => {
+            socket.off('chat message');
+        };
+    }, []);
+
     const handleSendMessage = () => {
         if (messageText.trim()) {
-            chatStore.sendMessage(messageText.trim(), selectedImage);
+            const message: ChatMessage = {
+                id: Date.now().toString(),
+                text: messageText.trim(),
+                timestamp: new Date(),
+                sender: chatStore.currentUser,
+                receiverId: 'user2', // Replace with actual receiver ID
+                isRead: false,
+                status: 'sent',
+                imageUri: selectedImage,
+            };
+
+            // Emit the message to the server
+            socket.emit('chat message', message);
+
+            // Add the message to the local store
+            // chatStore.addMessage(message);
+
             setMessageText('');
-            setSelectedImage(null);
+            setSelectedImage(null); // Clear the selected image after sending
+            // Scroll to bottom after sending
             setTimeout(() => {
                 flatListRef.current?.scrollToIndex({ index: 0, animated: true });
             }, 100);
@@ -63,7 +99,7 @@ const ChatScreen = observer(() => {
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? height(10) : 0}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
         >
             <FlatList
                 ref={flatListRef}
@@ -79,7 +115,8 @@ const ChatScreen = observer(() => {
                 contentContainerStyle={styles.messageList}
             />
 
-            <View style={styles.footerContainer}>
+
+            <View style={styles.footer}>
                 {selectedImage && (
                     <View style={styles.imagePreviewContainer}>
                         <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
@@ -89,6 +126,7 @@ const ChatScreen = observer(() => {
                     </View>
                 )}
                 <View style={styles.inputContainer}>
+
                     <TouchableOpacity onPress={handleAttachImage} style={styles.attachButton}>
                         <Text style={styles.attachButtonText}>📎</Text>
                     </TouchableOpacity>
@@ -99,6 +137,7 @@ const ChatScreen = observer(() => {
                         placeholder="Type a message..."
                         multiline
                         maxLength={1000}
+
                     />
                     <TouchableOpacity
                         style={[

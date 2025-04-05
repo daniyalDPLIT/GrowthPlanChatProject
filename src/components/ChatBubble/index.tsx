@@ -10,17 +10,6 @@ interface ChatBubbleProps {
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = observer(({ message, isOwnMessage }) => {
-    const getStatusText = () => {
-        switch (message.status) {
-            case 'sending': return '⋯';
-            case 'sent': return '✓';
-            case 'delivered': return '✓✓';
-            case 'read': return '✓✓';
-            case 'failed': return '!';
-            default: return '';
-        }
-    };
-
     const formattedTime = new Date(message.timestamp).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit'
@@ -29,23 +18,36 @@ const ChatBubble: React.FC<ChatBubbleProps> = observer(({ message, isOwnMessage 
     return (
         <View style={[
             styles.container,
-            isOwnMessage ? styles.ownMessage : styles.otherMessage
+            isOwnMessage ? styles.ownMessageContainer : styles.otherMessageContainer
         ]}>
-            {message.imageUri && (
-                <Image source={{ uri: message.imageUri }} style={styles.messageImage} />
+            {isOwnMessage ? (
+                <View style={styles.ownMessageWrapper}>
+                    <View style={styles.youCircle}>
+                        <Text style={styles.youText}>You</Text>
+                    </View>
+                    <View style={styles.messageBubble}>
+                        {message.imageUri && (
+                            <Image source={{ uri: message.imageUri }} style={styles.messageImage} />
+                        )}
+                        <Text style={styles.ownMessageText}>{message.text}</Text>
+                        <Text style={styles.timestamp}>{formattedTime}</Text>
+                    </View>
+                </View>
+            ) : (
+                <View style={styles.otherMessageWrapper}>
+                    <Image
+                        source={{ uri: message.sender.avatar }}
+                        style={styles.avatar}
+                    />
+                    <View style={styles.messageBubble}>
+                        {message.imageUri && (
+                            <Image source={{ uri: message.imageUri }} style={styles.messageImage} />
+                        )}
+                        <Text style={styles.otherMessageText}>{message.text}</Text>
+                        <Text style={styles.timestamp}>{formattedTime}</Text>
+                    </View>
+                </View>
             )}
-            <Text style={[
-                styles.text,
-                isOwnMessage ? styles.ownMessageText : styles.otherMessageText
-            ]}>
-                {message.text}
-            </Text>
-            <View style={styles.messageFooter}>
-                <Text style={styles.timestamp}>{formattedTime}</Text>
-                {isOwnMessage && (
-                    <Text style={styles.status}>{getStatusText()}</Text>
-                )}
-            </View>
         </View>
     );
 });
